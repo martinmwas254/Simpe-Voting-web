@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Voting App</title>
+    <!-- Use Tailwind CSS for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the app container */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background color */
+            color: #f7fafc; /* Light text color */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main voting application container -->
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl max-w-lg w-full text-center">
+
+        <!-- App title -->
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-yellow-400">Vote for Your Favorite Fruit!</h1>
+
+        <!-- Container for the voting options -->
+        <div id="voting-options" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Voting options will be dynamically generated here by JavaScript -->
+        </div>
+
+        <!-- Section for displaying the results -->
+        <div id="results" class="space-y-4 text-left">
+            <h2 class="text-3xl font-bold mb-4 text-purple-400">Current Results</h2>
+            <!-- Results will be dynamically generated here by JavaScript -->
+        </div>
+
+    </div>
+
+    <!-- JavaScript logic for the voting app -->
+    <script>
+        // Wait for the DOM to be fully loaded before running the script
+        document.addEventListener('DOMContentLoaded', () => {
+            // Array of candidate objects with their initial vote counts
+            let candidates = [
+                { name: 'Martin', votes: 200, color: 'bg-red-500' },
+                { name: 'Alex', votes: 150, color: 'bg-yellow-500' },
+                { name: 'Moses', votes: 130, color: 'bg-orange-500' },
+                { name: 'Rodrick', votes: 100, color: 'bg-purple-500' }
+            ];
+
+            // Get the DOM elements where the options and results will be displayed
+            const votingOptionsContainer = document.getElementById('voting-options');
+            const resultsContainer = document.getElementById('results');
+
+            /**
+             * Renders the voting options and the current results.
+             * This function is called initially and after every vote.
+             */
+            function renderApp() {
+                // Clear the containers before re-rendering
+                votingOptionsContainer.innerHTML = '';
+                resultsContainer.innerHTML = '';
+
+                // Create and display each voting option
+                candidates.forEach(candidate => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'bg-gray-700 p-6 rounded-xl flex flex-col items-center justify-between shadow-lg';
+                    optionDiv.innerHTML = `
+                        <h3 class="text-xl font-semibold mb-3">${candidate.name}</h3>
+                        <button class="vote-button w-full px-4 py-2 mt-2 font-bold text-white ${candidate.color} rounded-lg hover:opacity-80 transition-opacity transform hover:scale-105 active:scale-95" data-name="${candidate.name}">
+                            Vote
+                        </button>
+                    `;
+                    votingOptionsContainer.appendChild(optionDiv);
+                });
+
+                // Attach event listeners to the newly created "Vote" buttons
+                document.querySelectorAll('.vote-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const candidateName = event.target.dataset.name;
+                        vote(candidateName);
+                    });
+                });
+
+                // Sort candidates in descending order of votes for the results display
+                const sortedCandidates = [...candidates].sort((a, b) => b.votes - a.votes);
+
+                // Display the current vote counts for each candidate
+                sortedCandidates.forEach(candidate => {
+                    const resultDiv = document.createElement('div');
+                    const totalVotes = candidates.reduce((total, c) => total + c.votes, 0);
+                    const percentage = totalVotes === 0 ? 0 : ((candidate.votes / totalVotes) * 100).toFixed(1);
+                    resultDiv.className = 'bg-gray-700 p-4 rounded-lg flex items-center justify-between shadow-md';
+                    resultDiv.innerHTML = `
+                        <span class="text-lg font-medium">${candidate.name}:</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-bold">${candidate.votes}</span>
+                            <span class="text-sm text-gray-400">(${percentage}%)</span>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(resultDiv);
+                });
+            }
+
+            /**
+             * Increments the vote count for a given candidate and re-renders the app.
+             * @param {string} name - The name of the candidate to vote for.
+             */
+            function vote(name) {
+                const candidate = candidates.find(c => c.name === name);
+                if (candidate) {
+                    candidate.votes++;
+                    renderApp(); // Re-render the app to show the updated counts
+                }
+            }
+
+            // Initial render of the application
+            renderApp();
+        });
+    </script>
+</body>
+</html>
